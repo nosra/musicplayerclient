@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Hello World!</title>
+    <title>Echo</title>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <h1>Hello World!</h1>
-
-    <h1>Computer Info:</h1>
-    <button id="computer-info">Click me!</button>
-    <span id="cpu-info"></span>
+    <h1>ECHO</h1>
     <button id="upload-button">Upload</button>
-    <img id="uploaded-image" src="" width="300" height="200"></img>
+    <button id="create-playlist">Create Playlist</button>
+    <button id="display-playlist">Display Playlist</button>
+    <div id="audio-container" controls></div>
 
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>

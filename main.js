@@ -1,11 +1,38 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+
 const path = require('node:path')
 const os = require('node:os');
+const fs = require('node:fs');
+
+// custom classes
+const Track = require ('./Track')
+const TrackManager = require('./TrackManager')
+const Loader = require('./Loader')
+
+// track files
+const validExtensionTypes = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a']
+const trackDirectory = path.join(__dirname, 'tracks')
+
+// initializing the track manager
+const trackManager = new TrackManager(trackDirectory)
+
+// initializing the saved playlists
+const playlists = Loader.loadPlaylists()
+console.log('Playlists: ')
+playlists.forEach(playlist => {
+  console.log(playlist.name)
+})
 
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    // titleBarStyle: 'hidden',
+    titleBarOverlay: {
+    color: '#2f3241',
+    symbolColor: '#74b1be',
+    height: 30
+    },
     width: 800,
     height: 600,
     webPreferences: {
@@ -20,19 +47,42 @@ function createWindow () {
   // mainWindow.webContents.openDevTools()
 }
 
-ipcMain.handle('computerCheckStart', (event) => {
-  // event.reply('cpuModelReply', os.cpus())
-  return os.cpus()
-})
-
 ipcMain.handle('dialog:openFile', async () => {
     const result = await dialog.showOpenDialog({
         properties: ['openFile'],
-        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif'] }]
-    });
-    return result.filePaths
+        filters: [{ name: 'Audio Files', extensions: validExtensionTypes }]
+    })
+
+    // use the track manager to handle this file
+    await trackManager.cloneAudioFile(result.filePaths[0]);
+    return trackManager.trackList[0].getFilePath()
 });
 
+ipcMain.handle('playlist:createPlaylist', async() => {
+  const Playlist = require('./Playlist')
+  const playlistMaster = new Playlist('master')
+  // just going to add every track we have into this playlist (woohoo!)
+  trackManager.trackList.forEach(track => {
+    playlistMaster.addTrackToPlaylist(track)
+  })
+  console.log('{+} Created new playlist: ')
+  playlistMaster.playlist.forEach(playlistElement => {
+    console.log(`{+} Song: ${playlistElement.track.getFilePath()} | Position: ${playlistElement.position}`)
+  })
+  // save to json file
+  if(playlistMaster.playlist.length != 0)
+    playlistMaster.save()
+})
+
+ipcMain.handle('playlist:displayPlaylist', async () => {
+  console.log('{+} Displaying playlist...')
+  const Playlist = require('./Playlist')
+  playlistMaster = new Playlist('master')
+  trackManager.trackList.forEach(track => {
+    playlistMaster.addTrackToPlaylist(track)
+  })
+  return playlistMaster
+})
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
