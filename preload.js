@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('fileManage', {
 })
 
 contextBridge.exposeInMainWorld('playlistManage', {
-  createPlaylist: () => ipcRenderer.invoke('playlist:createPlaylist'),
-  displayPlaylist: () => ipcRenderer.invoke('playlist:displayPlaylist')
+  createPlaylist: (name) => ipcRenderer.invoke('playlist:createPlaylist', name),
+  displayPlaylist: (name) => ipcRenderer.invoke('playlist:displayPlaylist', name),
+  deleteAllPlaylists: () => ipcRenderer.send('playlist:deleteAllPlaylists')
 })

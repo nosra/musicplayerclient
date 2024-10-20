@@ -7,7 +7,7 @@ class Loader{
 
     static loadPlaylists(){
         const Playlist = require('./Playlist')
-        const PlaylistElement = require('./PlaylistElement')
+        // const PlaylistElement = require('./PlaylistElement')
         const Track = require('./Track')
         const playlistsArr = []
         try{

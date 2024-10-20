@@ -19,13 +19,13 @@ class TrackManager{
 
     // adding to the track list
     addToTrackList(track){
-        console.log("{+} Attempting to add...")
+        console.log("{+} Attempting to add to TrackManager...")
         if(!this.checkDuplicateTrack(track)){
             this.trackList.push(track)
-            console.log('--{+} Added a new track!')
+            console.log(' |-{ Added a new track to TrackManager: ' + track.getName())
             return true
         } 
-        console.log('{+} Failed adding a new track.')
+        console.log(' |-{ Failed adding a new track.')
         return false
     }
 
@@ -38,8 +38,7 @@ class TrackManager{
             const filePath = path.join(this.trackDirectory, file)
             const stats = await fs.lstat(filePath);
             if(stats.isFile() && validExtensionTypes.includes(path.extname(filePath))){
-
-              // add a new track then
+              // add a new track
               const newTrack = new Track(filePath)
               newTrack.filePath = filePath
               this.addToTrackList(newTrack)

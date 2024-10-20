@@ -3,11 +3,15 @@ const PlaylistElement = require('./PlaylistElement')
 const fs = require('fs')
 const path = require('path')
 class Playlist{
+
+    // path to playlist data
+    static dataPath = path.join(__dirname, 'data/playlists.json')
+    static defaultPlaylistData = { playlists: [] }
+
     constructor(name){
         // contains a playlist of playlist elements for rearranging, etc.
         this.name = name
         this.playlist = []
-        this.filePath = path.join(__dirname, 'data/playlists.json')
     }
     
     addTrackToPlaylist(track){
@@ -18,11 +22,11 @@ class Playlist{
 
     read(){
         try {
-            const rawData = fs.readFileSync(this.filePath);
-            return JSON.parse(rawData);
+            const rawData = fs.readFileSync(Playlist.dataPath)
+            return JSON.parse(rawData)
         } catch (error) {
-            console.error('{!} Error reading data file:', error);
-            return { playlists: [] };
+            console.error('{!} Error reading data file:', error)
+            return { playlists: [] }
         }
     }
 
@@ -38,12 +42,21 @@ class Playlist{
         try{
             const data = this.read()
             data.playlists.push(playlistInfo)
-            fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2))
+            fs.writeFileSync(Playlist.dataPath, JSON.stringify(data, null, 2))
             console.log('{+} Saved playlist data.')
         } catch (error){
             console.error('{!} Error writing to file:', error)
         }
-        
+    }
+
+    static deleteAllPlaylists(){
+        try{
+            const rawData = JSON.stringify(Playlist.defaultPlaylistData, null, 4)
+            fs.writeFileSync(Playlist.dataPath, rawData);
+            console.log('{+} Deleted all playlists')
+        } catch (error) {
+            console.error('{!} Error reseting playlists.json: ', error)
+        }
     }
 }
 

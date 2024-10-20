@@ -19,9 +19,9 @@ const trackManager = new TrackManager(trackDirectory)
 
 // initializing the saved playlists
 const playlists = Loader.loadPlaylists()
-console.log('Playlists: ')
+console.log('{+} Preloaded playlists: ')
 playlists.forEach(playlist => {
-  console.log(playlist.name)
+  console.log(" |-{ " + playlist.name)
 })
 
 function createWindow () {
@@ -58,30 +58,35 @@ ipcMain.handle('dialog:openFile', async () => {
     return trackManager.trackList[0].getFilePath()
 });
 
-ipcMain.handle('playlist:createPlaylist', async() => {
+
+// creates a playlist FROM EVERY UPLOADED TRACK (TODO: add more granularity)
+ipcMain.handle('playlist:createPlaylist', async (event, name) => {
+  console.log(name)
   const Playlist = require('./Playlist')
-  const playlistMaster = new Playlist('master')
+  const playlistObj = new Playlist(name)
   // just going to add every track we have into this playlist (woohoo!)
   trackManager.trackList.forEach(track => {
-    playlistMaster.addTrackToPlaylist(track)
+    playlistObj.addTrackToPlaylist(track)
   })
   console.log('{+} Created new playlist: ')
-  playlistMaster.playlist.forEach(playlistElement => {
-    console.log(`{+} Song: ${playlistElement.track.getFilePath()} | Position: ${playlistElement.position}`)
+  playlistObj.playlist.forEach(playlistElement => {
+    console.log(`{+} Song: ${playlistElement.track.getName()} | Position: ${playlistElement.position}`)
   })
-  // save to json file
-  if(playlistMaster.playlist.length != 0)
-    playlistMaster.save()
+  
+  if(playlistObj.playlist.length != 0){
+    // add to playlist list
+    playlists.push(playlistObj)
+
+    // save to json file
+    playlistObj.save()
+  }
 })
 
-ipcMain.handle('playlist:displayPlaylist', async () => {
-  console.log('{+} Displaying playlist...')
-  const Playlist = require('./Playlist')
-  playlistMaster = new Playlist('master')
-  trackManager.trackList.forEach(track => {
-    playlistMaster.addTrackToPlaylist(track)
-  })
-  return playlistMaster
+
+// returns a playlist
+ipcMain.handle('playlist:displayPlaylist', async (event, name) => {
+  let playlist = playlists.find(p => p.name === name)
+  return playlist
 })
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -94,6 +99,13 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+})
+
+// deletes all the saved playlists
+ipcMain.on('playlist:deleteAllPlaylists', () => {
+  const Playlist = require('./Playlist')
+  playlists.length = 0
+  Playlist.deleteAllPlaylists()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

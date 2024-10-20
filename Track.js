@@ -8,7 +8,7 @@ class Track{
         this.fileName = fileName
 
         // get the name of the file
-        const choppedName = fileName.slice(0, fileName.length-4)
+        const choppedName = fileName.split('.').slice(0, -1).join('.');
         this.name = path.basename(choppedName)
 
         // the location of the file depends on a few factors. for now, it will remained uninitialized
