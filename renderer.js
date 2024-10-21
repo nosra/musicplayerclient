@@ -92,3 +92,4 @@ document.getElementById('delete-all-playlists').onclick = () => {
     const audioContainer = document.getElementById('audio-container')
     clearAudioContainer(audioContainer)
 }
+

@@ -1,6 +1,7 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 
+// node.js
 const path = require('node:path')
 const os = require('node:os');
 const fs = require('node:fs');
@@ -28,11 +29,6 @@ function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     // titleBarStyle: 'hidden',
-    titleBarOverlay: {
-    color: '#2f3241',
-    symbolColor: '#74b1be',
-    height: 30
-    },
     width: 800,
     height: 600,
     webPreferences: {
@@ -40,8 +36,11 @@ function createWindow () {
     }
   })
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+  // loading our vue app first
+  mainWindow.loadURL(path.join(__dirname, 'dist', 'index.html'))
+
+  // DEFAULT TESTING FILE (UNCOMMENT TO TEST)
+  // mainWindow.loadFile('index.html')
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -84,7 +83,7 @@ ipcMain.handle('playlist:createPlaylist', async (event, name) => {
 
 
 // returns a playlist
-ipcMain.handle('playlist:displayPlaylist', async (event, name) => {
+ipcMain.handle('playlist:loadPlaylist', async (event, name) => {
   let playlist = playlists.find(p => p.name === name)
   return playlist
 })
